@@ -57,6 +57,25 @@ export default function AgentVerification() {
     { id: 'TSK-2102', title: 'Review Coffee Pot Measurements', artisan: 'Mulu Pottery', region: 'Yeka', priority: 'Medium', dueDate: 'Apr 23, 2026' },
   ]
 
+  const draftQueue = [
+    {
+      id: 'DRF-3401',
+      product: 'Leather Messenger Bag',
+      artisan: 'Abeba Handmade',
+      verificationStatus: 'Verified',
+      draftStatus: 'Ready for Admin Review',
+      updatedAt: 'Apr 21, 2026',
+    },
+    {
+      id: 'DRF-3402',
+      product: 'Traditional Coffee Roaster',
+      artisan: 'Mulu Pottery',
+      verificationStatus: 'Verified with Notes',
+      draftStatus: 'Needs Metadata Update',
+      updatedAt: 'Apr 20, 2026',
+    },
+  ]
+
   const handleMaterialToggle = (material: string) => {
     setVerificationData((prev) => ({
       ...prev,
@@ -129,6 +148,7 @@ export default function AgentVerification() {
         <div className="mb-6 border-b border-border flex gap-8">
           {[
             { id: 'verification', label: 'Verification Tasks' },
+            { id: 'drafts', label: 'Drafts' },
           ].map((tab) => (
             <button
               key={tab.id}
@@ -466,6 +486,47 @@ export default function AgentVerification() {
                   </li>
                 </ul>
               </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'drafts' && (
+          <div className="bg-card border border-border rounded-lg p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h2 className="text-lg font-serif font-bold text-foreground">Verification Drafts</h2>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Products verified by agents and waiting before platform publishing.
+                </p>
+              </div>
+              <Button variant="outline" className="border-border">Refresh Drafts</Button>
+            </div>
+            <div className="space-y-3">
+              {draftQueue.map((draft) => (
+                <div
+                  key={draft.id}
+                  className="border border-border rounded-lg p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3"
+                >
+                  <div>
+                    <p className="text-sm font-semibold text-foreground">{draft.product}</p>
+                    <p className="text-xs text-muted-foreground mt-1">{draft.id} - {draft.artisan}</p>
+                    <p className="text-xs text-muted-foreground mt-1">Updated: {draft.updatedAt}</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="inline-flex px-3 py-1 rounded-full text-xs font-medium bg-success/10 text-success">
+                      {draft.verificationStatus}
+                    </span>
+                    <span className={`inline-flex px-3 py-1 rounded-full text-xs font-medium ${
+                      draft.draftStatus === 'Ready for Admin Review'
+                        ? 'bg-primary/10 text-primary'
+                        : 'bg-warning/10 text-warning'
+                    }`}>
+                      {draft.draftStatus}
+                    </span>
+                    <Button variant="outline" className="border-border h-8 text-xs">Open Draft</Button>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         )}
