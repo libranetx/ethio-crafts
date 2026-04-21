@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import Link from 'next/link'
-import { MapPin, Camera, CheckCircle, AlertCircle, XCircle, Bell, UserCircle2 } from 'lucide-react'
+import { MapPin, Camera, CheckCircle, AlertCircle, XCircle, Bell, UserCircle2, Package } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 export default function AgentVerification() {
@@ -104,6 +104,12 @@ export default function AgentVerification() {
               <p className="text-muted-foreground mt-1">Agent ID: AG-2847 | Tasks: {pendingTasks.length} pending</p>
             </div>
             <div className="flex items-center gap-2 relative">
+              <Link href="/dashboard/agent/fulfillment">
+                <Button variant="outline" className="border-border">
+                  <Package className="w-4 h-4 mr-2" />
+                  Fulfillment
+                </Button>
+              </Link>
               <Button
                 variant="outline"
                 className="border-border"
