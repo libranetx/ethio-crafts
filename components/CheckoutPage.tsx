@@ -2,13 +2,17 @@
 
 import React, { useState } from 'react'
 import Link from 'next/link'
-import { MapPin, Phone, CreditCard, CheckCircle, Lock } from 'lucide-react'
+import { MapPin, Phone, CreditCard, CheckCircle, Lock, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { paymentService } from '@/lib/payment-service'
 
 type CheckoutStep = 'shipping' | 'payment' | 'review' | 'confirmation'
 
 export default function CheckoutPage() {
   const [currentStep, setCurrentStep] = useState<CheckoutStep>('shipping')
+  const [isProcessing, setIsProcessing] = useState(false)
+  const [orderNumber, setOrderNumber] = useState<string>('')
+  const [paymentError, setPaymentError] = useState<string>('')
   const [formData, setFormData] = useState({
     email: '',
     phone: '',
@@ -53,6 +57,57 @@ export default function CheckoutPage() {
   const handlePrev = () => {
     if (currentStep === 'payment') setCurrentStep('shipping')
     else if (currentStep === 'review') setCurrentStep('payment')
+  }
+
+  const handlePlaceOrder = async () => {
+    setIsProcessing(true)
+    setPaymentError('')
+
+    try {
+      // Generate order ID and number
+      const orderId = `order-${Date.now()}`
+      const orderNum = `ORD-${new Date().getFullYear()}-${Math.random().toString(36).substring(7).toUpperCase()}`
+      setOrderNumber(orderNum)
+
+      // Calculate totals using payment service
+      const shippingCost = formData.shippingMethod === 'express' ? 750 : 250
+      const totals = paymentService.calculateOrderTotal(orderData.subtotal, shippingCost)
+
+      // Initialize payment based on selected method
+      if (formData.paymentMethod === 'chapa' || formData.paymentMethod === 'telebirr') {
+        const paymentResponse = await paymentService.initializePayment({
+          orderId,
+          amount: totals.total,
+          currency: 'ETB',
+          provider: formData.paymentMethod as 'chapa' | 'telebirr',
+          customerEmail: formData.email,
+          customerName: formData.fullName,
+          customerPhone: formData.phone,
+          description: `Order ${orderNum} - ${orderData.items.length} items`,
+          returnUrl: `${window.location.origin}/checkout?step=confirmation&order=${orderNum}`,
+        })
+
+        if (paymentResponse.success) {
+          // In a real app, redirect to payment gateway
+          if (paymentResponse.redirectUrl) {
+            console.log('[v0] Redirecting to payment gateway:', paymentResponse.redirectUrl)
+            // window.location.href = paymentResponse.redirectUrl
+          }
+          // For demo, move to confirmation
+          setCurrentStep('confirmation')
+        } else {
+          setPaymentError(paymentResponse.errorMessage || 'Payment initialization failed')
+        }
+      } else if (formData.paymentMethod === 'cod') {
+        // Cash on delivery - skip payment processing
+        setCurrentStep('confirmation')
+      }
+    } catch (error) {
+      console.error('[v0] Payment error:', error)
+      setPaymentError('An error occurred while processing your payment')
+    } finally {
+      setIsProcessing(false)
+    }
   }
 
   return (
@@ -361,19 +416,34 @@ export default function CheckoutPage() {
                   <Button onClick={() => setCurrentStep('payment')} variant="outline" className="mt-4 border-border text-sm">Edit</Button>
                 </div>
 
+                {paymentError && (
+                  <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+                    <p className="text-sm text-red-800">{paymentError}</p>
+                  </div>
+                )}
+
                 <div className="flex gap-4">
                   <Button
                     onClick={handlePrev}
                     variant="outline"
                     className="flex-1 border-border h-12 font-medium"
+                    disabled={isProcessing}
                   >
                     Back
                   </Button>
                   <Button
-                    onClick={handleNext}
+                    onClick={handlePlaceOrder}
+                    disabled={isProcessing}
                     className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90 h-12 font-medium"
                   >
-                    Place Order
+                    {isProcessing ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Processing...
+                      </>
+                    ) : (
+                      'Place Order'
+                    )}
                   </Button>
                 </div>
               </div>
@@ -390,7 +460,7 @@ export default function CheckoutPage() {
 
                 <div className="bg-muted/50 rounded-lg p-4 mb-6">
                   <p className="text-sm text-muted-foreground mb-1">Order Number</p>
-                  <p className="text-2xl font-bold text-primary font-mono">#ORD-2024-001234</p>
+                  <p className="text-2xl font-bold text-primary font-mono">#{orderNumber}</p>
                 </div>
 
                 <p className="text-sm text-muted-foreground mb-6">
@@ -399,7 +469,7 @@ export default function CheckoutPage() {
 
                 <div className="flex flex-col gap-3">
                   <Button asChild className="bg-primary text-primary-foreground hover:bg-primary/90 h-12 font-medium">
-                    <Link href="/orders/ORD-2024-001234">
+                    <Link href={`/orders/${orderNumber}`}>
                     Track Your Order
                     </Link>
                   </Button>

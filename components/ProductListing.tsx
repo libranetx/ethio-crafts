@@ -1,60 +1,85 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Slider } from '@/components/ui/slider'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Button } from '@/components/ui/button'
 import { ProductCard } from '@/components/ProductCard'
 import { X } from 'lucide-react'
+import { productService } from '@/lib/data-service'
+import { Product } from '@/lib/types'
 
 export function ProductListing() {
   const [selectedCategory, setSelectedCategory] = useState<string[]>([])
   const [selectedRegion, setSelectedRegion] = useState<string[]>([])
   const [priceRange, setPriceRange] = useState([0, 10000])
   const [sortBy, setSortBy] = useState('relevance')
+  const [products, setProducts] = useState<Product[]>([])
+  const [loading, setLoading] = useState(true)
 
-  const categories = [
-    { name: 'Pottery', count: 284 },
-    { name: 'Weaving', count: 156 },
-    { name: 'Leatherwork', count: 93 },
-    { name: 'Metalwork', count: 67 },
-    { name: 'Basketry', count: 142 },
-    { name: 'Jewelry', count: 187 },
-  ]
+  // Fetch products on mount
+  useEffect(() => {
+    const fetchProducts = async () => {
+      setLoading(true)
+      try {
+        const response = await productService.getActive(1, 24)
+        setProducts(response.data)
+      } catch (error) {
+        console.error('[v0] Failed to fetch products:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchProducts()
+  }, [])
 
+  // Calculate categories dynamically from products
+  const categories = useMemo(() => {
+    const categoryMap = new Map<string, number>()
+    products.forEach((p) => {
+      categoryMap.set(p.category, (categoryMap.get(p.category) || 0) + 1)
+    })
+    return Array.from(categoryMap.entries()).map(([name, count]) => ({ name, count }))
+  }, [products])
+
+  // Get regions from artisans
   const regions = [
     { name: 'Addis Ababa', count: 340 },
-    { name: 'Hawassa', count: 156 },
-    { name: 'Gondar', count: 89 },
-    { name: 'Mekelle', count: 78 },
-    { name: 'Axum', count: 65 },
+    { name: 'Oromia', count: 156 },
+    { name: 'SNNPR', count: 89 },
+    { name: 'Amhara', count: 78 },
+    { name: 'Tigray', count: 65 },
   ]
 
   const materials = [
     { name: 'Clay', count: 284 },
-    { name: 'Leather', count: 156 },
-    { name: 'Wood', count: 142 },
-    { name: 'Metal', count: 93 },
-    { name: 'Fiber/Straw', count: 187 },
+    { name: 'Cotton', count: 156 },
+    { name: 'Silk', count: 142 },
+    { name: 'Brass', count: 93 },
+    { name: 'Straw', count: 187 },
   ]
 
-  // Keep mock products stable across re-renders to avoid flicker.
-  const products = useMemo(
-    () =>
-      Array.from({ length: 24 }, (_, i) => ({
-        id: String(i + 1),
-        title: `Handcrafted Product ${i + 1}`,
-        price: 500 + ((i * 347) % 3000),
-        image: '/images/product.jpg',
-        category: categories[i % categories.length].name,
-        region: regions[i % regions.length].name,
-        rating: 4 + (i % 2),
-        reviews: 5 + ((i * 11) % 50),
-        verified: true,
-        inStock: i % 5 !== 0,
-      })),
-    []
-  )
+  // Apply filters
+  const filteredProducts = useMemo(() => {
+    let filtered = products.filter((p) => {
+      const matchesCategory = selectedCategory.length === 0 || selectedCategory.includes(p.category)
+      const matchesPrice = p.price >= priceRange[0] && p.price <= priceRange[1]
+      return matchesCategory && matchesPrice
+    })
+
+    // Apply sorting
+    if (sortBy === 'price-low') {
+      filtered.sort((a, b) => a.price - b.price)
+    } else if (sortBy === 'price-high') {
+      filtered.sort((a, b) => b.price - a.price)
+    } else if (sortBy === 'rating') {
+      filtered.sort((a, b) => b.rating - a.rating)
+    } else if (sortBy === 'newest') {
+      filtered.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    }
+
+    return filtered
+  }, [products, selectedCategory, priceRange, sortBy])
 
   const activeFilters = selectedCategory.length + selectedRegion.length
 
@@ -64,7 +89,7 @@ export function ProductListing() {
         Shop All Products
       </h1>
       <p className="text-muted-foreground mb-8">
-        Showing 1-24 of 1,234 products
+        Showing {filteredProducts.length} of {products.length} products
       </p>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
@@ -233,23 +258,65 @@ export function ProductListing() {
             </div>
           )}
 
-          {/* Product Grid */}
-          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-            {products.map((product) => (
-              <ProductCard key={product.id} {...product} />
-            ))}
-          </div>
+          {/* Loading State */}
+          {loading && (
+            <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="bg-muted rounded-lg h-72 animate-pulse" />
+              ))}
+            </div>
+          )}
 
-          {/* Load More */}
-          <div className="mt-12 text-center">
-            <Button
-              variant="outline"
-              className="px-8 border-primary text-primary hover:bg-primary/10"
-              size="lg"
-            >
-              Load More Products
-            </Button>
-          </div>
+          {/* Empty State */}
+          {!loading && filteredProducts.length === 0 && (
+            <div className="text-center py-12">
+              <p className="text-muted-foreground">No products found matching your filters.</p>
+              <Button
+                variant="outline"
+                className="mt-4"
+                onClick={() => {
+                  setSelectedCategory([])
+                  setPriceRange([0, 10000])
+                }}
+              >
+                Clear Filters
+              </Button>
+            </div>
+          )}
+
+          {/* Product Grid */}
+          {!loading && filteredProducts.length > 0 && (
+            <>
+              <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                {filteredProducts.map((product) => (
+                  <ProductCard
+                    key={product.id}
+                    id={product.id}
+                    title={product.name}
+                    price={product.price}
+                    image={product.images[0] || '/images/product.jpg'}
+                    rating={product.rating}
+                    reviews={product.reviewCount}
+                    verified={product.status === 'active'}
+                    inStock={product.stock > 0}
+                  />
+                ))}
+              </div>
+
+              {/* Load More */}
+              {filteredProducts.length >= 24 && (
+                <div className="mt-12 text-center">
+                  <Button
+                    variant="outline"
+                    className="px-8 border-primary text-primary hover:bg-primary/10"
+                    size="lg"
+                  >
+                    Load More Products
+                  </Button>
+                </div>
+              )}
+            </>
+          )}
         </main>
       </div>
     </div>
