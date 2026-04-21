@@ -76,70 +76,96 @@ export default function HeroCarousel() {
   const banner = banners[current]
 
   return (
-    <div className="relative w-full h-96 sm:h-[500px] lg:h-[600px] bg-white overflow-hidden rounded-lg group">
-      {/* Background Image with hover zoom effect */}
-      <Image
-        src={banner.image}
-        alt={banner.title}
-        fill
-        priority
-        sizes="100vw"
-        className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
-      />
+    <div className="relative w-full overflow-hidden">
+      {/* Hero Section with Blue Background */}
+      <div className="relative w-full bg-gradient-to-b from-blue-500 to-blue-400 pt-12 pb-32 sm:pt-20 sm:pb-40 lg:pt-24 lg:pb-48">
+        {/* Two Column Layout */}
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-12 items-center">
+            {/* Left Side - Product Image */}
+            <div className="flex justify-center items-center order-2 lg:order-1">
+              <div className="relative w-full max-w-sm h-80 sm:h-96 lg:h-full">
+                <Image
+                  src={banner.image}
+                  alt={banner.title}
+                  fill
+                  priority
+                  sizes="(max-width: 1024px) 100vw, 50vw"
+                  className="object-cover rounded-lg shadow-2xl"
+                />
+              </div>
+            </div>
 
-      {/* Overlay */}
-      <div className="absolute inset-0 bg-black/40" />
+            {/* Right Side - Content */}
+            <div className="flex flex-col justify-center order-1 lg:order-2">
+              {/* Category Badge */}
+              <div className="inline-flex items-center gap-2 mb-4">
+                <span className="text-white/70 text-sm font-medium tracking-widest">
+                  {banner.category.toUpperCase()}
+                </span>
+              </div>
 
-      {/* Content */}
-      <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-4 sm:px-8">
-        <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-4 text-balance">
-          {banner.title}
-        </h2>
-        <p className="text-lg sm:text-xl text-white/90 mb-8 text-balance max-w-2xl">
-          {banner.subtitle}
-        </p>
-        <Button className="bg-primary text-primary-foreground hover:bg-primary/90 px-8 py-3 text-base">
-          {banner.ctaText}
-        </Button>
-      </div>
+              {/* Heading */}
+              <h2 className="font-serif text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6 text-balance">
+                {banner.title}
+              </h2>
 
-      {/* Navigation Arrows */}
-      <button
-        onClick={prev}
-        className="absolute left-4 top-1/2 -translate-y-1/2 z-10 bg-white/20 hover:bg-white/40 text-white p-2 rounded-full transition-all"
-        aria-label="Previous slide"
-      >
-        <ChevronLeft className="w-6 h-6" />
-      </button>
+              {/* Subtitle */}
+              <p className="text-lg sm:text-xl text-white/90 mb-8 text-balance max-w-xl leading-relaxed">
+                {banner.subtitle}
+              </p>
 
-      <button
-        onClick={next}
-        className="absolute right-4 top-1/2 -translate-y-1/2 z-10 bg-white/20 hover:bg-white/40 text-white p-2 rounded-full transition-all"
-        aria-label="Next slide"
-      >
-        <ChevronRight className="w-6 h-6" />
-      </button>
+              {/* CTA Buttons */}
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Button className="bg-white text-blue-500 hover:bg-blue-50 px-8 py-3 text-base font-semibold rounded-full shadow-lg transition-all hover:shadow-xl">
+                  {banner.ctaText}
+                </Button>
+                <Button variant="outline" className="border-2 border-white text-white hover:bg-white/10 px-8 py-3 text-base font-semibold rounded-full transition-all">
+                  Learn More
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
 
-      {/* Dots Indicator */}
-      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
-        {banners.map((_, idx) => (
-          <button
-            key={idx}
-            onClick={() => {
-              setCurrent(idx)
-              setAutoPlay(false)
-            }}
-            className={`w-2 h-2 rounded-full transition-all ${
-              idx === current ? 'bg-white w-8' : 'bg-white/50'
-            }`}
-            aria-label={`Go to slide ${idx + 1}`}
-          />
-        ))}
-      </div>
+        {/* Navigation Arrows */}
+        <button
+          onClick={prev}
+          className="absolute left-4 top-1/2 -translate-y-1/2 z-10 bg-white/20 hover:bg-white/40 text-white p-3 rounded-full transition-all"
+          aria-label="Previous slide"
+        >
+          <ChevronLeft className="w-6 h-6" />
+        </button>
 
-      {/* Category Badge */}
-      <div className="absolute top-4 right-4 bg-primary text-primary-foreground px-4 py-2 rounded-full text-sm font-medium">
-        {banner.category}
+        <button
+          onClick={next}
+          className="absolute right-4 top-1/2 -translate-y-1/2 z-10 bg-white/20 hover:bg-white/40 text-white p-3 rounded-full transition-all"
+          aria-label="Next slide"
+        >
+          <ChevronRight className="w-6 h-6" />
+        </button>
+
+        {/* Dots Indicator - Positioned at bottom */}
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+          {banners.map((_, idx) => (
+            <button
+              key={idx}
+              onClick={() => {
+                setCurrent(idx)
+                setAutoPlay(false)
+              }}
+              className={`w-2 h-2 rounded-full transition-all ${
+                idx === current ? 'bg-white w-8' : 'bg-white/50'
+              }`}
+              aria-label={`Go to slide ${idx + 1}`}
+            />
+          ))}
+        </div>
+
+        {/* Wavy Bottom Edge */}
+        <div className="absolute bottom-0 left-0 right-0 h-24 bg-white" style={{
+          clipPath: 'polygon(0 40%, 0 100%, 100% 100%, 100% 40%, 75% 35%, 50% 40%, 25% 35%, 0 40%)'
+        }} />
       </div>
     </div>
   )
