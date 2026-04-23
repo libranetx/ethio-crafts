@@ -76,7 +76,7 @@ export default function HeroCarousel() {
   const banner = banners[current]
 
   return (
-    <div className="relative w-full h-96 sm:h-[500px] lg:h-[600px] bg-white overflow-hidden group">
+    <div className="relative w-full h-screen bg-white overflow-hidden group">
       {/* Background Image with hover zoom effect */}
       <Image
         src={banner.image}
