@@ -101,29 +101,6 @@ export function Header() {
         )}
       </div>
 
-      {/* Trust Bar */}
-      <div className="border-t border-border bg-white py-2">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 gap-4 text-center text-xs sm:grid-cols-4 sm:text-sm">
-            <div className="flex flex-col gap-1">
-              <span className="font-semibold text-foreground">✓ Verified</span>
-              <span className="text-muted-foreground text-xs">500+ Artisans</span>
-            </div>
-            <div className="flex flex-col gap-1">
-              <span className="font-semibold text-foreground">✓ Quality</span>
-              <span className="text-muted-foreground text-xs">Inspected</span>
-            </div>
-            <div className="hidden sm:flex flex-col gap-1">
-              <span className="font-semibold text-foreground">✓ Secure</span>
-              <span className="text-muted-foreground text-xs">Payments</span>
-            </div>
-            <div className="hidden sm:flex flex-col gap-1">
-              <span className="font-semibold text-foreground">✓ Tracked</span>
-              <span className="text-muted-foreground text-xs">Orders</span>
-            </div>
-          </div>
-        </div>
-      </div>
     </header>
   )
 }
