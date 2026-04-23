@@ -2,8 +2,16 @@
 
 import React, { useState, useEffect } from 'react'
 import Image from 'next/image'
-import { ChevronLeft, ChevronRight, ShoppingBag, ShoppingCart, Package } from 'lucide-react'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+
+// Product images for floating elements
+const productImages = [
+  'https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?w=400&h=400&fit=crop',
+  'https://images.unsplash.com/photo-1598303866858-0f64a02a2f13?w=400&h=400&fit=crop',
+  'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=400&h=400&fit=crop',
+  'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=400&h=400&fit=crop',
+]
 
 // CSS for floating animation
 const floatingStyles = `
@@ -102,7 +110,7 @@ export default function HeroCarousel() {
   return (
     <>
       <style>{floatingStyles}</style>
-      <div className="relative w-full h-screen bg-gradient-to-br from-background to-background/95 overflow-hidden">
+      <div className="relative w-full h-screen bg-transparent overflow-hidden">
         {/* Two Column Layout */}
         <div className="h-full grid grid-cols-1 lg:grid-cols-2 items-center">
           {/* Left Column - Content */}
@@ -146,26 +154,50 @@ export default function HeroCarousel() {
             </div>
           </div>
 
-          {/* Right Column - Floating Elements */}
+          {/* Right Column - Floating Product Images */}
           <div className="relative h-full hidden lg:block overflow-hidden">
-            {/* Floating shopping bag 1 */}
-            <div className="float-item-1 absolute top-20 right-20 text-primary opacity-80">
-              <ShoppingBag className="w-20 h-20 drop-shadow-lg" />
+            {/* Floating product image 1 */}
+            <div className="float-item-1 absolute top-20 right-20 w-32 h-32 rounded-lg overflow-hidden shadow-2xl">
+              <Image
+                src={productImages[0]}
+                alt="Product 1"
+                width={128}
+                height={128}
+                className="w-full h-full object-cover"
+              />
             </div>
 
-            {/* Floating package 1 */}
-            <div className="float-item-2 absolute top-40 right-40 text-primary/70 opacity-70">
-              <Package className="w-16 h-16 drop-shadow-lg" />
+            {/* Floating product image 2 */}
+            <div className="float-item-2 absolute top-40 right-40 w-28 h-28 rounded-lg overflow-hidden shadow-xl">
+              <Image
+                src={productImages[1]}
+                alt="Product 2"
+                width={112}
+                height={112}
+                className="w-full h-full object-cover"
+              />
             </div>
 
-            {/* Floating shopping cart */}
-            <div className="float-item-3 absolute top-1/2 right-16 text-primary opacity-75">
-              <ShoppingCart className="w-24 h-24 drop-shadow-lg" />
+            {/* Floating product image 3 */}
+            <div className="float-item-3 absolute top-1/2 right-16 w-40 h-40 rounded-lg overflow-hidden shadow-2xl">
+              <Image
+                src={productImages[2]}
+                alt="Product 3"
+                width={160}
+                height={160}
+                className="w-full h-full object-cover"
+              />
             </div>
 
-            {/* Floating shopping bag 2 */}
-            <div className="float-item-4 absolute bottom-32 right-32 text-primary/80 opacity-85">
-              <ShoppingBag className="w-20 h-20 drop-shadow-lg" />
+            {/* Floating product image 4 */}
+            <div className="float-item-4 absolute bottom-32 right-32 w-32 h-32 rounded-lg overflow-hidden shadow-xl">
+              <Image
+                src={productImages[3]}
+                alt="Product 4"
+                width={128}
+                height={128}
+                className="w-full h-full object-cover"
+              />
             </div>
 
             {/* Background accent - subtle gradient orb */}
