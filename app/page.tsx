@@ -10,12 +10,12 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-white">
       <Header />
+      <HeroCarousel />
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <HeroCarousel />
+        <CategoryGrid />
+        <FeaturedProducts />
+        <CulturalStories />
       </div>
-      <CategoryGrid />
-      <FeaturedProducts />
-      <CulturalStories />
       <Footer />
       <ChatSupport />
     </main>
